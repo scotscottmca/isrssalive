@@ -16,4 +16,8 @@ assert.match((await get(null))[0], /rss\+xml/);
 assert.match((await get(chrome, "/feed.xml"))[0], /rss\+xml/);
 assert.equal((await get(chrome))[1], "Accept");
 assert.match((await get(null))[2], /<item>/);
+assert.match((await get(chrome))[2], /All systems operational/);
+assert.match((await get(chrome))[2], /<link rel="alternate" type="application\/rss\+xml" title="Is RSS Alive\?" href="https:\/\/isrssalive\.com\/">/);
+assert.equal((await get(chrome))[2].match(/<time datetime="\d{4}-\d\d-\d\d">/g).length, 7);
+assert.match((await get(reader))[2], /^<\?xml[^]*<rss version="2\.0"[^]*<\/rss>$/);
 console.log("ok");
