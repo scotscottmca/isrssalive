@@ -2,7 +2,7 @@ const SITE = "https://isrssalive.com/";
 
 export const CHECKS = [
   "The feed has no engagement metrics. It seems fine with that.",
-  "A newsletter asked for an email address. The feed did not.",
+  "A newsletter needs your email address. The feed gets by on a URL.",
   "Somewhere a podcast app refreshed a feed. Nobody clapped.",
   "No cookie banner was required to bring you this result.",
   "The obituary writers have been notified. Again.",
@@ -15,11 +15,11 @@ export const CHECKS = [
   "Asked for a second opinion. It was also yes.",
   "The angle brackets are holding.",
   "The check took four milliseconds. Most of that was formality.",
-  "Nothing was trending. Everything was delivered.",
-  "The spec did not change. It rarely feels the need.",
+  "Trends came and went. The posts arrived in the order they were written.",
+  "The spec is one day older than at the last check. It wears it well.",
   "An unread count went up somewhere. This is the system working.",
-  "No one logged in. No one had to.",
-  "Considered sending a push notification. Decided against it, as always.",
+  "Someone read three posts over coffee and closed the app. Session complete.",
+  "Push notifications sent so far: zero. The streak continues.",
   "Uneventful. Those are the good ones.",
 ];
 
@@ -86,8 +86,9 @@ li.row span:first-child{font-weight:500}
 .note{margin-bottom:16px;padding:14px 16px;border:1px solid #B34700;border-radius:6px;background:#FFF}
 .copy{margin-top:10px}
 code{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;user-select:all}
-button{display:block;width:15em;max-width:100%;margin-top:10px;white-space:nowrap;min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#B34700;color:#FFF;font:inherit;font-weight:600;cursor:pointer}
+button{display:block;box-sizing:border-box;width:15em;max-width:100%;margin-top:10px;white-space:nowrap;min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#B34700;color:#FFF;font:inherit;font-weight:600;cursor:pointer}
 button:hover{background:#7A3000}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .checks li{display:flex;flex-wrap:wrap;gap:2px 20px}
 time{flex:0 0 7.5rem;font-variant-numeric:tabular-nums}
 .checks p{flex:1 1 220px;min-width:0}
@@ -120,7 +121,7 @@ footer p+p{margin-top:4px}
 <section aria-labelledby="checks">
 <h2 id="checks">Daily checks</h2>
 <div class="note"><p>This list is the feed. Subscribe by pasting this address into a feed reader. Same URL. It knows the difference.</p>
-<p class="copy"><code>${SITE}</code><button type="button" onclick="(navigator.clipboard?navigator.clipboard.writeText('${SITE}'):Promise.reject()).then(()=>'Copied',()=>'Press and hold the URL').then(t=>{this.textContent=t})">Copy feed URL</button></p></div>
+<p class="copy"><code>${SITE}</code><button type="button" onclick="(navigator.clipboard?navigator.clipboard.writeText('${SITE}'):Promise.reject()).then(()=>'Copied',()=>'Select the URL above').then(t=>{this.textContent=this.nextElementSibling.textContent=t})">Copy feed URL</button><span class="sr" role="status"></span></p></div>
 <ol role="list" class="checks">
 ${checks(now)}
 </ol>

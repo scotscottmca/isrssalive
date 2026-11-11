@@ -47,8 +47,22 @@ assert.equal(daily(fixed)[0].text, daily(fixed + 864e5)[1].text);
 assert.notEqual(daily(fixed)[0].text, daily(fixed + 864e5)[0].text);
 assert.match(page(), /<button type="button"[^<]*>Copy feed URL<\/button>/);
 assert.doesNotMatch(page() + feed(), /\u2014|undefined/);
-for (const line of CHECKS) assert.doesNotMatch(line, /\b(today|yesterday|tomorrow)\b/i);
+for (const line of CHECKS) assert.doesNotMatch(line, /\b(today|yesterday|tomorrow|tonight)\b/i);
 assert.equal(CHECKS.length, 20);
 assert.equal(new Set(CHECKS).size, 20);
 assert.doesNotMatch(page(), /fonts\.googleapis|gstatic/);
+assert.match(page(), /Select the URL above/);
+assert.equal(page().match(/role="status"/g).length, 1);
+// Indexes 2 to 9 are the lines for days already published. They must not change.
+assert.deepEqual(CHECKS.slice(2, 10), [
+  "Somewhere a podcast app refreshed a feed. Nobody clapped.",
+  "No cookie banner was required to bring you this result.",
+  "The obituary writers have been notified. Again.",
+  "This entry is in chronological order. No algorithm was consulted.",
+  "A feed was polled. It answered. That is the whole story.",
+  "The on-call engineer slept through the night. There is no on-call engineer.",
+  "Someone unsubscribed. No one sent a survey asking why.",
+  "No outage to report. The incident template remains unused.",
+]);
+for (const line of CHECKS) assert.ok(line.length < 90, line);
 console.log("ok");
