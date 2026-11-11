@@ -1,38 +1,58 @@
 const SITE = "https://isrssalive.com/";
 
-const feed = (day) => `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
-<title>Is RSS Alive?</title>
-<link>${SITE}</link>
-<description>A daily answer to the only question that matters.</description>
-<atom:link href="${SITE}" rel="self" type="application/rss+xml"/>
-<item>
-<title>Yes. RSS is alive.</title>
-<link>${SITE}</link>
-<guid isPermaLink="false">${day}</guid>
-<pubDate>${new Date(day + "T00:00:00Z").toUTCString()}</pubDate>
-<description>Yes. You're reading this in a feed reader, so you already knew.</description>
-</item>
-</channel></rss>`;
-
 const CHECKS = [
-  "The feed already told its subscribers. You had to come here and look.",
   "No change since yesterday. No change expected tomorrow.",
   "Checked twice to be sure. Same answer both times.",
   "Somewhere a podcast app refreshed a feed. Nobody clapped.",
   "Still XML. Still fine.",
   "The obituary writers have been notified. Again.",
   "This check was delivered in order, without an algorithm.",
+  "A feed was polled. It answered. That is the whole story.",
+  "The on-call engineer slept through the night. There is no on-call engineer.",
+  "Another platform changed its timeline. This one did not.",
+  "No outage to report. The incident template remains unused.",
+  "A blog with no redesign in years published a post. It arrived.",
+  "Asked for a second opinion. It was also yes.",
+  "The angle brackets are holding.",
+  "Today's check took four milliseconds. Most of that was formality.",
+  "Nothing was trending. Everything was delivered.",
+  "The spec did not change today. It rarely feels the need.",
+  "An unread count went up somewhere. This is the system working.",
+  "No one logged in. No one had to.",
+  "Considered sending a push notification. Decided against it, as always.",
+  "A dull day. Those are the good ones.",
 ];
 
-// Seven daily checks, newest first, all in UTC so the visible date and datetime always agree.
-const checks = (day) => CHECKS.map((text, i) => {
-  const d = new Date(Date.parse(day) - i * 864e5);
-  const shown = d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-  return `<li><time datetime="${d.toISOString().slice(0, 10)}">${shown}</time><p><strong>Yes.</strong> ${text}</p></li>`;
+// The one source for page and feed: the last 7 UTC days, newest first.
+// The line is picked by UTC day number, so a given date always gets the same line.
+export const daily = (now = Date.now()) => Array.from({ length: 7 }, (_, i) => {
+  const n = Math.floor(now / 864e5) - i;
+  return { date: new Date(n * 864e5), text: CHECKS[n % CHECKS.length] };
+});
+
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+export const feed = (now) => `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>
+<title>Is RSS Alive?</title>
+<link>${SITE}</link>
+<description>A daily answer to the only question that matters.</description>
+<atom:link href="${SITE}" rel="self" type="application/rss+xml"/>
+${daily(now).map(({ date, text }) => `<item>
+<title>Yes. RSS is alive.</title>
+<link>${SITE}</link>
+<guid isPermaLink="false">${date.toISOString().slice(0, 10)}</guid>
+<pubDate>${date.toUTCString()}</pubDate>
+<description>Yes. ${esc(text)}</description>
+</item>`).join("\n")}
+</channel></rss>`;
+
+const checks = (now) => daily(now).map(({ date, text }) => {
+  const shown = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  return `<li><time datetime="${date.toISOString().slice(0, 10)}">${shown}</time><p><strong>Yes.</strong> ${esc(text)}</p></li>`;
 }).join("\n");
 
-const page = (day) => `<!doctype html>
+export const page = (now) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Is RSS Alive? Status page</title>
@@ -41,7 +61,7 @@ const page = (day) => `<!doctype html>
 <style>
 body{margin:0;min-height:100vh;box-sizing:border-box;background:#F3F5F2;color:#16201B;font-family:Inter,system-ui,sans-serif;font-size:1rem;line-height:1.5;padding:32px 20px 56px;overflow-wrap:break-word}
 a{color:#B34700;font-weight:600}a:hover{color:#7A3000}
-a:focus-visible{outline:3px solid #B34700;outline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid #B34700;outline-offset:3px}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%,100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
 .dot{flex:none;width:12px;height:12px;border-radius:50%;background:#FFF;animation:pulse 2s ease-out infinite}
 @media (prefers-reduced-motion:reduce){.dot{animation:none}}
@@ -66,6 +86,10 @@ li.row span:first-child{font-weight:500}
 .ok,strong{color:#1B6E45}
 .muted,time{color:#55605A}
 .note{margin-bottom:16px;padding:14px 16px;border:1px solid #B34700;border-radius:6px;background:#FFF}
+.copy{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:10px}
+code{font-family:ui-monospace,monospace;user-select:all}
+button{min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#B34700;color:#FFF;font:inherit;font-weight:600;cursor:pointer}
+button:hover{background:#7A3000}
 .checks li{display:flex;flex-wrap:wrap;gap:2px 20px}
 time{flex:0 0 7.5rem;font-variant-numeric:tabular-nums}
 .checks p{flex:1 1 220px;min-width:0}
@@ -77,7 +101,7 @@ footer p+p{margin-top:4px}
 <header>
 <h1>Is RSS Alive?</h1>
 <p class="yes">Yes.</p>
-<p class="status" role="status"><span class="dot" aria-hidden="true"></span>All systems operational. As usual.</p>
+<p class="status"><span class="dot" aria-hidden="true"></span>All systems operational. As usual.</p>
 </header>
 <section aria-labelledby="uptime">
 <div class="row"><h2 id="uptime">Uptime since 1999</h2><span class="pct">100%</span></div>
@@ -87,7 +111,7 @@ footer p+p{margin-top:4px}
 </section>
 <section aria-labelledby="components">
 <h2 id="components">Components</h2>
-<ul>
+<ul role="list">
 <li class="row"><span>Feeds</span><span class="ok">Operational</span></li>
 <li class="row"><span>Podcasts</span><span class="ok">Operational</span></li>
 <li class="row"><span>Blogs</span><span class="ok">Operational, reportedly</span></li>
@@ -97,14 +121,15 @@ footer p+p{margin-top:4px}
 </section>
 <section aria-labelledby="checks">
 <h2 id="checks">Daily checks</h2>
-<p class="note">This list is the feed. <a href="${SITE}">Subscribe</a> by pasting this page's address into a feed reader. Same URL. It knows the difference.</p>
-<ol reversed class="checks">
-${checks(day)}
+<div class="note"><p>This list is the feed. Subscribe by pasting this address into a feed reader. Same URL. It knows the difference.</p>
+<p class="copy"><code>${SITE}</code><button type="button" aria-live="polite" onclick="navigator.clipboard.writeText('${SITE}').then(()=>{this.textContent='Copied'})">Copy feed URL</button></p></div>
+<ol role="list" class="checks">
+${checks(now)}
 </ol>
 </section>
 <section aria-labelledby="incidents">
 <h2 id="incidents">Incident history</h2>
-<ol class="incidents">
+<ol role="list" class="incidents">
 <li><div class="row"><span class="year">1999</span><span class="muted">Service started</span></div>
 <p>Netscape ships RSS 0.90. Monitoring begins. Nothing to report.</p></li>
 <li><div class="row"><span class="year">2009</span><span class="muted">False positive</span></div>
@@ -128,10 +153,9 @@ export const wantsHtml = (accept) => /text\/html/.test(accept) && !/rss|atom/.te
 
 export default {
   fetch(req) {
-    const day = new Date().toISOString().slice(0, 10);
     const { pathname } = new URL(req.url);
     const html = pathname === "/" && wantsHtml(req.headers.get("accept") || "");
-    return new Response(html ? page(day) : feed(day), {
+    return new Response(html ? page() : feed(), {
       headers: {
         "content-type": html ? "text/html; charset=utf-8" : "application/rss+xml; charset=utf-8",
         "cache-control": "public, max-age=300",
