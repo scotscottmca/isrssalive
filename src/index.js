@@ -1,26 +1,26 @@
 const SITE = "https://isrssalive.com/";
 
-const CHECKS = [
-  "No change since yesterday. No change expected tomorrow.",
-  "Checked twice to be sure. Same answer both times.",
+export const CHECKS = [
+  "The feed has no engagement metrics. It seems fine with that.",
+  "A newsletter asked for an email address. The feed did not.",
   "Somewhere a podcast app refreshed a feed. Nobody clapped.",
-  "Still XML. Still fine.",
+  "No cookie banner was required to bring you this result.",
   "The obituary writers have been notified. Again.",
-  "This check was delivered in order, without an algorithm.",
+  "This entry is in chronological order. No algorithm was consulted.",
   "A feed was polled. It answered. That is the whole story.",
   "The on-call engineer slept through the night. There is no on-call engineer.",
-  "Another platform changed its timeline. This one did not.",
+  "Someone unsubscribed. No one sent a survey asking why.",
   "No outage to report. The incident template remains unused.",
   "A blog with no redesign in years published a post. It arrived.",
   "Asked for a second opinion. It was also yes.",
   "The angle brackets are holding.",
-  "Today's check took four milliseconds. Most of that was formality.",
+  "The check took four milliseconds. Most of that was formality.",
   "Nothing was trending. Everything was delivered.",
-  "The spec did not change today. It rarely feels the need.",
+  "The spec did not change. It rarely feels the need.",
   "An unread count went up somewhere. This is the system working.",
   "No one logged in. No one had to.",
   "Considered sending a push notification. Decided against it, as always.",
-  "A dull day. Those are the good ones.",
+  "Uneventful. Those are the good ones.",
 ];
 
 // The one source for page and feed: the last 7 UTC days, newest first.
@@ -57,9 +57,8 @@ export const page = (now) => `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Is RSS Alive? Status page</title>
 <link rel="alternate" type="application/rss+xml" title="Is RSS Alive?" href="${SITE}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
-body{margin:0;min-height:100vh;box-sizing:border-box;background:#F3F5F2;color:#16201B;font-family:Inter,system-ui,sans-serif;font-size:1rem;line-height:1.5;padding:32px 20px 56px;overflow-wrap:break-word}
+body{margin:0;min-height:100vh;box-sizing:border-box;background:#F3F5F2;color:#16201B;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:1rem;line-height:1.5;padding:32px 20px 56px;overflow-wrap:break-word}
 a{color:#B34700;font-weight:600}a:hover{color:#7A3000}
 a:focus-visible,button:focus-visible{outline:3px solid #B34700;outline-offset:3px}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%,100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
@@ -67,7 +66,6 @@ a:focus-visible,button:focus-visible{outline:3px solid #B34700;outline-offset:3p
 @media (prefers-reduced-motion:reduce){.dot{animation:none}}
 main{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
 header{display:flex;flex-direction:column;gap:20px}
-h1,h2,.yes,.pct,.year{font-family:'Space Grotesk',system-ui,sans-serif}
 h1{margin:0;font-size:1.5rem;font-weight:500}
 h2{margin:0 0 16px;font-size:1.25rem;font-weight:600;letter-spacing:-.01em}
 p{margin:0}
@@ -86,9 +84,9 @@ li.row span:first-child{font-weight:500}
 .ok,strong{color:#1B6E45}
 .muted,time{color:#55605A}
 .note{margin-bottom:16px;padding:14px 16px;border:1px solid #B34700;border-radius:6px;background:#FFF}
-.copy{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:10px}
-code{font-family:ui-monospace,monospace;user-select:all}
-button{min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#B34700;color:#FFF;font:inherit;font-weight:600;cursor:pointer}
+.copy{margin-top:10px}
+code{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;user-select:all}
+button{display:block;width:15em;max-width:100%;margin-top:10px;white-space:nowrap;min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#B34700;color:#FFF;font:inherit;font-weight:600;cursor:pointer}
 button:hover{background:#7A3000}
 .checks li{display:flex;flex-wrap:wrap;gap:2px 20px}
 time{flex:0 0 7.5rem;font-variant-numeric:tabular-nums}
@@ -122,7 +120,7 @@ footer p+p{margin-top:4px}
 <section aria-labelledby="checks">
 <h2 id="checks">Daily checks</h2>
 <div class="note"><p>This list is the feed. Subscribe by pasting this address into a feed reader. Same URL. It knows the difference.</p>
-<p class="copy"><code>${SITE}</code><button type="button" aria-live="polite" onclick="navigator.clipboard.writeText('${SITE}').then(()=>{this.textContent='Copied'})">Copy feed URL</button></p></div>
+<p class="copy"><code>${SITE}</code><button type="button" onclick="(navigator.clipboard?navigator.clipboard.writeText('${SITE}'):Promise.reject()).then(()=>'Copied',()=>'Press and hold the URL').then(t=>{this.textContent=t})">Copy feed URL</button></p></div>
 <ol role="list" class="checks">
 ${checks(now)}
 </ol>

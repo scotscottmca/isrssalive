@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import worker, { daily, feed, page } from "./src/index.js";
+import worker, { CHECKS, daily, feed, page } from "./src/index.js";
 
 const get = async (accept, path = "/") => {
   const r = await worker.fetch(new Request("https://isrssalive.com" + path, { headers: accept ? { accept } : {} }));
@@ -46,5 +46,9 @@ assert.equal(daily(fixed)[0].text, daily(fixed + 3600e3)[0].text);
 assert.equal(daily(fixed)[0].text, daily(fixed + 864e5)[1].text);
 assert.notEqual(daily(fixed)[0].text, daily(fixed + 864e5)[0].text);
 assert.match(page(), /<button type="button"[^<]*>Copy feed URL<\/button>/);
-assert.doesNotMatch(page() + feed(), /—|undefined/);
+assert.doesNotMatch(page() + feed(), /\u2014|undefined/);
+for (const line of CHECKS) assert.doesNotMatch(line, /\b(today|yesterday|tomorrow)\b/i);
+assert.equal(CHECKS.length, 20);
+assert.equal(new Set(CHECKS).size, 20);
+assert.doesNotMatch(page(), /fonts\.googleapis|gstatic/);
 console.log("ok");
